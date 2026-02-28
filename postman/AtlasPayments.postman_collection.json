@@ -116,6 +116,128 @@
           "body": "{\n  \"error\": {\n    \"code\": \"RATE_LIMITED\",\n    \"message\": \"Rate limit exceeded.\"\n  }\n}"
         }
       ]
+    },
+    {
+      "name": "Customers - POST /api/v1/customers",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{apiKey}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"externalId\": \"cust_ext_001\",\n  \"email\": \"customer@example.com\",\n  \"name\": \"Jane Customer\",\n  \"metadata\": {\n    \"tier\": \"gold\"\n  }\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/customers",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "customers"
+          ]
+        }
+      },
+      "response": [
+        {
+          "name": "201 Created",
+          "status": "Created",
+          "code": 201,
+          "_postman_previewlanguage": "json",
+          "body": "{\n  \"customer\": {\n    \"id\": \"cmf1customer123\",\n    \"merchantId\": \"cmf1merchant123\",\n    \"externalId\": \"cust_ext_001\",\n    \"email\": \"customer@example.com\",\n    \"name\": \"Jane Customer\",\n    \"metadata\": {\n      \"tier\": \"gold\"\n    },\n    \"createdAt\": \"2026-02-28T10:00:00.000Z\",\n    \"updatedAt\": \"2026-02-28T10:00:00.000Z\"\n  }\n}"
+        }
+      ]
+    },
+    {
+      "name": "Customers - GET /api/v1/customers",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{apiKey}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/customers?page=1&pageSize=10",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "customers"
+          ],
+          "query": [
+            {
+              "key": "page",
+              "value": "1"
+            },
+            {
+              "key": "pageSize",
+              "value": "10"
+            }
+          ]
+        }
+      },
+      "response": [
+        {
+          "name": "200 OK",
+          "status": "OK",
+          "code": 200,
+          "_postman_previewlanguage": "json",
+          "body": "{\n  \"data\": [\n    {\n      \"id\": \"cmf1customer123\",\n      \"merchantId\": \"cmf1merchant123\",\n      \"externalId\": \"cust_ext_001\",\n      \"email\": \"customer@example.com\",\n      \"name\": \"Jane Customer\",\n      \"metadata\": {\n        \"tier\": \"gold\"\n      },\n      \"createdAt\": \"2026-02-28T10:00:00.000Z\",\n      \"updatedAt\": \"2026-02-28T10:00:00.000Z\"\n    }\n  ],\n  \"pagination\": {\n    \"page\": 1,\n    \"pageSize\": 10,\n    \"total\": 1,\n    \"hasMore\": false\n  }\n}"
+        }
+      ]
+    },
+    {
+      "name": "Customers - GET /api/v1/customers/:id",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{apiKey}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/customers/{{customerId}}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "customers",
+            "{{customerId}}"
+          ]
+        }
+      },
+      "response": [
+        {
+          "name": "200 OK",
+          "status": "OK",
+          "code": 200,
+          "_postman_previewlanguage": "json",
+          "body": "{\n  \"customer\": {\n    \"id\": \"cmf1customer123\",\n    \"merchantId\": \"cmf1merchant123\",\n    \"externalId\": \"cust_ext_001\",\n    \"email\": \"customer@example.com\",\n    \"name\": \"Jane Customer\",\n    \"metadata\": {\n      \"tier\": \"gold\"\n    },\n    \"createdAt\": \"2026-02-28T10:00:00.000Z\",\n    \"updatedAt\": \"2026-02-28T10:00:00.000Z\"\n  }\n}"
+        },
+        {
+          "name": "404 Not Found",
+          "status": "Not Found",
+          "code": 404,
+          "_postman_previewlanguage": "json",
+          "body": "{\n  \"error\": {\n    \"code\": \"CUSTOMER_NOT_FOUND\",\n    \"message\": \"Customer not found.\"\n  }\n}"
+        }
+      ]
     }
   ],
   "variable": [
@@ -126,6 +248,10 @@
     {
       "key": "apiKey",
       "value": "sk_test_your_key"
+    },
+    {
+      "key": "customerId",
+      "value": "cmf1customer123"
     }
   ]
 }

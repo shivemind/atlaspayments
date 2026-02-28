@@ -28,5 +28,12 @@
   - [x] Redis cache support with Prisma persistence fallback
   - [x] Tests for replay and conflicting payload behavior
 
+- [x] TASK 4 — Customers APIs
+  - [x] `POST /api/v1/customers` with Zod validation
+  - [x] `GET /api/v1/customers` with pagination
+  - [x] `GET /api/v1/customers/{id}`
+  - [x] Multi-tenant isolation on merchant-scoped customer access
+  - [x] Tests: create + fetch + list + tenant isolation
+
 ## Next Level-1 tasks
 - [ ] Populate remaining Level-1 queue from product prompt

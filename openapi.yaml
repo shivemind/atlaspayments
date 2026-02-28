@@ -196,3 +196,275 @@ paths:
                     error:
                       code: RATE_LIMITED
                       message: Rate limit exceeded.
+  /api/v1/customers:
+    post:
+      summary: Create customer
+      operationId: createCustomer
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                externalId:
+                  type: string
+                email:
+                  type: string
+                  format: email
+                name:
+                  type: string
+                metadata:
+                  type: object
+                  additionalProperties: true
+            examples:
+              basic:
+                value:
+                  externalId: cust_ext_001
+                  email: customer@example.com
+                  name: Jane Customer
+                  metadata:
+                    tier: gold
+      responses:
+        "201":
+          description: Customer created
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - customer
+                properties:
+                  customer:
+                    type: object
+                    required:
+                      - id
+                      - merchantId
+                      - externalId
+                      - email
+                      - name
+                      - metadata
+                      - createdAt
+                      - updatedAt
+                    properties:
+                      id:
+                        type: string
+                      merchantId:
+                        type: string
+                      externalId:
+                        type: string
+                        nullable: true
+                      email:
+                        type: string
+                        nullable: true
+                      name:
+                        type: string
+                        nullable: true
+                      metadata:
+                        type: object
+                        additionalProperties: true
+                        nullable: true
+                      createdAt:
+                        type: string
+                        format: date-time
+                      updatedAt:
+                        type: string
+                        format: date-time
+              examples:
+                created:
+                  value:
+                    customer:
+                      id: cmf1customer123
+                      merchantId: cmf1merchant123
+                      externalId: cust_ext_001
+                      email: customer@example.com
+                      name: Jane Customer
+                      metadata:
+                        tier: gold
+                      createdAt: "2026-02-28T10:00:00.000Z"
+                      updatedAt: "2026-02-28T10:00:00.000Z"
+        "400":
+          description: Invalid request payload
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                      message:
+                        type: string
+              examples:
+                invalid:
+                  value:
+                    error:
+                      code: INVALID_REQUEST
+                      message: Request body validation failed.
+        "401":
+          description: Missing or invalid API key
+    get:
+      summary: List customers
+      operationId: listCustomers
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+        - in: query
+          name: pageSize
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 10
+      responses:
+        "200":
+          description: Paginated list of merchant customers
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - data
+                  - pagination
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                        merchantId:
+                          type: string
+                        externalId:
+                          type: string
+                          nullable: true
+                        email:
+                          type: string
+                          nullable: true
+                        name:
+                          type: string
+                          nullable: true
+                        metadata:
+                          type: object
+                          additionalProperties: true
+                          nullable: true
+                        createdAt:
+                          type: string
+                          format: date-time
+                        updatedAt:
+                          type: string
+                          format: date-time
+                  pagination:
+                    type: object
+                    properties:
+                      page:
+                        type: integer
+                      pageSize:
+                        type: integer
+                      total:
+                        type: integer
+                      hasMore:
+                        type: boolean
+              examples:
+                pageOne:
+                  value:
+                    data:
+                      - id: cmf1customer123
+                        merchantId: cmf1merchant123
+                        externalId: cust_ext_001
+                        email: customer@example.com
+                        name: Jane Customer
+                        metadata:
+                          tier: gold
+                        createdAt: "2026-02-28T10:00:00.000Z"
+                        updatedAt: "2026-02-28T10:00:00.000Z"
+                    pagination:
+                      page: 1
+                      pageSize: 10
+                      total: 1
+                      hasMore: false
+        "400":
+          description: Invalid query parameters
+        "401":
+          description: Missing or invalid API key
+  /api/v1/customers/{id}:
+    get:
+      summary: Get customer by id
+      operationId: getCustomerById
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Customer found for authenticated merchant
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - customer
+                properties:
+                  customer:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                      merchantId:
+                        type: string
+                      externalId:
+                        type: string
+                        nullable: true
+                      email:
+                        type: string
+                        nullable: true
+                      name:
+                        type: string
+                        nullable: true
+                      metadata:
+                        type: object
+                        additionalProperties: true
+                        nullable: true
+                      createdAt:
+                        type: string
+                        format: date-time
+                      updatedAt:
+                        type: string
+                        format: date-time
+        "401":
+          description: Missing or invalid API key
+        "404":
+          description: Customer not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                      message:
+                        type: string
+              examples:
+                notFound:
+                  value:
+                    error:
+                      code: CUSTOMER_NOT_FOUND
+                      message: Customer not found.

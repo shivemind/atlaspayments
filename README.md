@@ -3,7 +3,7 @@
 Level-1 payments gateway sandbox built with Next.js App Router and TypeScript.
 
 ## Status
-- Current milestone: Task 2 (auth middleware + API keys)
+- Current milestone: Task 4 (customers APIs)
 - Source of truth for implementation/process rules: `AGENTS.md`
 
 ## Tech Stack
@@ -43,6 +43,9 @@ Level-1 payments gateway sandbox built with Next.js App Router and TypeScript.
 ## API (current)
 - `GET /api/health`
 - `GET /api/v1/me` (Bearer API key required)
+- `POST /api/v1/customers` (Bearer API key required)
+- `GET /api/v1/customers` (Bearer API key required, pagination)
+- `GET /api/v1/customers/{id}` (Bearer API key required)
 
 ## Environment Variables (placeholders)
 Create `.env.local` and set:
