@@ -1,0 +1,40 @@
+openapi: 3.1.0
+info:
+  title: AtlasPayments Sandbox API
+  version: 0.1.0
+  description: Level-1 payments gateway sandbox API.
+servers:
+  - url: http://localhost:3000
+paths:
+  /api/health:
+    get:
+      summary: Health check
+      operationId: getHealth
+      responses:
+        "200":
+          description: Service health status
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - status
+                  - service
+                  - timestamp
+                properties:
+                  status:
+                    type: string
+                    example: ok
+                  service:
+                    type: string
+                    example: atlaspayments
+                  timestamp:
+                    type: string
+                    format: date-time
+                    example: "2026-02-27T23:30:00.000Z"
+              examples:
+                healthy:
+                  value:
+                    status: ok
+                    service: atlaspayments
+                    timestamp: "2026-02-27T23:30:00.000Z"
