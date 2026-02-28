@@ -50,12 +50,82 @@
           "body": "{\n  \"status\": \"ok\",\n  \"service\": \"atlaspayments\",\n  \"timestamp\": \"2026-02-27T23:30:00.000Z\"\n}"
         }
       ]
+    },
+    {
+      "name": "Me - GET /api/v1/me",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{apiKey}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/me",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "me"
+          ]
+        }
+      },
+      "response": [
+        {
+          "name": "200 OK",
+          "originalRequest": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{apiKey}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/me",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "me"
+              ]
+            }
+          },
+          "status": "OK",
+          "code": 200,
+          "_postman_previewlanguage": "json",
+          "body": "{\n  \"merchant\": {\n    \"id\": \"cmf1merchant123\",\n    \"name\": \"Task 2 Merchant\",\n    \"status\": \"ACTIVE\"\n  },\n  \"apiKey\": {\n    \"id\": \"cmf1apikey123\",\n    \"name\": \"Primary key\",\n    \"role\": \"MERCHANT\",\n    \"scopes\": [\"me:read\", \"payments:read\"],\n    \"keyPrefix\": \"sk_test_va\",\n    \"createdAt\": \"2026-02-27T23:30:00.000Z\",\n    \"lastUsedAt\": null\n  }\n}"
+        },
+        {
+          "name": "401 Unauthorized",
+          "status": "Unauthorized",
+          "code": 401,
+          "_postman_previewlanguage": "json",
+          "body": "{\n  \"error\": {\n    \"code\": \"INVALID_API_KEY\",\n    \"message\": \"Invalid API key.\"\n  }\n}"
+        },
+        {
+          "name": "429 Too Many Requests",
+          "status": "Too Many Requests",
+          "code": 429,
+          "_postman_previewlanguage": "json",
+          "body": "{\n  \"error\": {\n    \"code\": \"RATE_LIMITED\",\n    \"message\": \"Rate limit exceeded.\"\n  }\n}"
+        }
+      ]
     }
   ],
   "variable": [
     {
       "key": "baseUrl",
       "value": "http://localhost:3000"
+    },
+    {
+      "key": "apiKey",
+      "value": "sk_test_your_key"
     }
   ]
 }

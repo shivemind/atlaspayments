@@ -7,13 +7,16 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint .",
-    "test": "vitest run",
+    "test": "prisma generate && vitest run",
     "test:watch": "vitest",
+    "prisma:generate": "prisma generate",
+    "prisma:migrate:dev": "prisma migrate dev",
+    "prisma:migrate:deploy": "prisma migrate deploy",
     "format": "prettier --write .",
     "format:check": "prettier --check ."
   },
   "dependencies": {
-    "@prisma/client": "^7.4.2",
+    "@prisma/client": "^6.16.0",
     "@upstash/redis": "^1.36.3",
     "next": "16.1.6",
     "react": "19.2.3",
@@ -29,7 +32,7 @@
     "eslint": "^9",
     "eslint-config-next": "16.1.6",
     "prettier": "^3.8.1",
-    "prisma": "^7.4.2",
+    "prisma": "^6.16.0",
     "tailwindcss": "^4",
     "typescript": "^5",
     "vitest": "^4.0.18"

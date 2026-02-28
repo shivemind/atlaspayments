@@ -1,0 +1,292 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+enum MerchantStatus {
+  ACTIVE
+  INACTIVE
+}
+
+enum ApiKeyType {
+  SECRET
+  PUBLISHABLE
+}
+
+enum ApiKeyRole {
+  MERCHANT
+  PLATFORM_ADMIN
+}
+
+enum PaymentIntentStatus {
+  PENDING
+  APPROVED
+  DECLINED
+  CANCELED
+}
+
+enum RefundStatus {
+  PENDING
+  SUCCEEDED
+  FAILED
+}
+
+enum LedgerAccountType {
+  ASSET
+  LIABILITY
+  EQUITY
+  REVENUE
+  EXPENSE
+}
+
+enum LedgerEntryStatus {
+  DRAFT
+  POSTED
+}
+
+enum LedgerLineDirection {
+  DEBIT
+  CREDIT
+}
+
+enum WebhookDeliveryStatus {
+  PENDING
+  DELIVERED
+  FAILED
+}
+
+enum IdempotencyState {
+  PENDING
+  COMPLETED
+  FAILED
+}
+
+model Merchant {
+  id                 String               @id @default(cuid())
+  name               String
+  status             MerchantStatus       @default(ACTIVE)
+  createdAt          DateTime             @default(now())
+  updatedAt          DateTime             @updatedAt
+  apiKeys            ApiKey[]
+  customers          Customer[]
+  paymentIntents     PaymentIntent[]
+  refunds            Refund[]
+  ledgerAccounts     LedgerAccount[]
+  ledgerEntries      LedgerJournalEntry[]
+  ledgerLines        LedgerLine[]
+  webhookEndpoints   WebhookEndpoint[]
+  webhookDeliveries  WebhookDelivery[]
+  webhookAttempts    WebhookAttempt[]
+  idempotencyRecords IdempotencyRecord[]
+
+  @@map("merchants")
+}
+
+model ApiKey {
+  id         String     @id @default(cuid())
+  merchantId String
+  name       String
+  keyType    ApiKeyType @default(SECRET)
+  role       ApiKeyRole @default(MERCHANT)
+  scopes     Json
+  keyPrefix  String
+  keyHash    String
+  isActive   Boolean    @default(true)
+  lastUsedAt DateTime?
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
+  merchant   Merchant   @relation(fields: [merchantId], references: [id], onDelete: Cascade)
+
+  @@unique([merchantId, keyHash])
+  @@index([merchantId, createdAt])
+  @@map("api_keys")
+}
+
+model Customer {
+  id         String    @id @default(cuid())
+  merchantId String
+  externalId String?
+  email      String?
+  name       String?
+  metadata   Json?
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  merchant   Merchant  @relation(fields: [merchantId], references: [id], onDelete: Cascade)
+
+  paymentIntents PaymentIntent[]
+
+  @@unique([merchantId, externalId])
+  @@index([merchantId, createdAt])
+  @@map("customers")
+}
+
+model PaymentIntent {
+  id             String              @id @default(cuid())
+  merchantId     String
+  customerId     String?
+  amount         Int
+  currency       String
+  status         PaymentIntentStatus @default(PENDING)
+  idempotencyKey String
+  description    String?
+  metadata       Json?
+  createdAt      DateTime            @default(now())
+  updatedAt      DateTime            @updatedAt
+  merchant       Merchant            @relation(fields: [merchantId], references: [id], onDelete: Cascade)
+  customer       Customer?           @relation(fields: [customerId], references: [id], onDelete: SetNull)
+
+  refunds Refund[]
+
+  @@unique([merchantId, idempotencyKey])
+  @@index([merchantId, createdAt])
+  @@map("payment_intents")
+}
+
+model Refund {
+  id              String        @id @default(cuid())
+  merchantId      String
+  paymentIntentId String
+  amount          Int
+  status          RefundStatus  @default(PENDING)
+  reason          String?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  merchant        Merchant      @relation(fields: [merchantId], references: [id], onDelete: Cascade)
+  paymentIntent   PaymentIntent @relation(fields: [paymentIntentId], references: [id], onDelete: Cascade)
+
+  @@index([merchantId, createdAt])
+  @@map("refunds")
+}
+
+model LedgerAccount {
+  id         String            @id @default(cuid())
+  merchantId String
+  code       String
+  name       String
+  accountType LedgerAccountType
+  currency   String
+  createdAt  DateTime          @default(now())
+  updatedAt  DateTime          @updatedAt
+  merchant   Merchant          @relation(fields: [merchantId], references: [id], onDelete: Cascade)
+
+  lines LedgerLine[]
+
+  @@unique([merchantId, code])
+  @@index([merchantId, createdAt])
+  @@map("ledger_accounts")
+}
+
+model LedgerJournalEntry {
+  id          String            @id @default(cuid())
+  merchantId  String
+  reference   String?
+  description String?
+  status      LedgerEntryStatus @default(DRAFT)
+  postedAt    DateTime?
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+  merchant    Merchant          @relation(fields: [merchantId], references: [id], onDelete: Cascade)
+
+  lines LedgerLine[]
+
+  @@index([merchantId, createdAt])
+  @@map("ledger_journal_entries")
+}
+
+model LedgerLine {
+  id             String              @id @default(cuid())
+  merchantId     String
+  journalEntryId String
+  accountId      String
+  direction      LedgerLineDirection
+  amount         Int
+  createdAt      DateTime            @default(now())
+  merchant       Merchant            @relation(fields: [merchantId], references: [id], onDelete: Cascade)
+  journalEntry   LedgerJournalEntry  @relation(fields: [journalEntryId], references: [id], onDelete: Cascade)
+  account        LedgerAccount       @relation(fields: [accountId], references: [id], onDelete: Restrict)
+
+  @@index([merchantId, createdAt])
+  @@index([journalEntryId])
+  @@index([accountId])
+  @@map("ledger_lines")
+}
+
+model WebhookEndpoint {
+  id         String    @id @default(cuid())
+  merchantId String
+  url        String
+  secret     String
+  isActive   Boolean   @default(true)
+  eventTypes Json
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  merchant   Merchant  @relation(fields: [merchantId], references: [id], onDelete: Cascade)
+
+  deliveries WebhookDelivery[]
+
+  @@index([merchantId, createdAt])
+  @@map("webhook_endpoints")
+}
+
+model WebhookDelivery {
+  id                String                @id @default(cuid())
+  merchantId        String
+  webhookEndpointId String
+  eventType         String
+  payload           Json
+  status            WebhookDeliveryStatus @default(PENDING)
+  deliveredAt       DateTime?
+  nextAttemptAt     DateTime?
+  createdAt         DateTime              @default(now())
+  updatedAt         DateTime              @updatedAt
+  merchant          Merchant              @relation(fields: [merchantId], references: [id], onDelete: Cascade)
+  webhookEndpoint   WebhookEndpoint       @relation(fields: [webhookEndpointId], references: [id], onDelete: Cascade)
+
+  attempts WebhookAttempt[]
+
+  @@index([merchantId, createdAt])
+  @@map("webhook_deliveries")
+}
+
+model WebhookAttempt {
+  id             String          @id @default(cuid())
+  merchantId     String
+  deliveryId     String
+  attemptNumber  Int
+  requestBody    Json?
+  responseStatus Int?
+  responseBody   String?
+  errorMessage   String?
+  createdAt      DateTime        @default(now())
+  completedAt    DateTime?
+  merchant       Merchant        @relation(fields: [merchantId], references: [id], onDelete: Cascade)
+  delivery       WebhookDelivery @relation(fields: [deliveryId], references: [id], onDelete: Cascade)
+
+  @@unique([deliveryId, attemptNumber])
+  @@index([merchantId, createdAt])
+  @@map("webhook_attempts")
+}
+
+model IdempotencyRecord {
+  id                  String           @id @default(cuid())
+  merchantId          String
+  route               String
+  idempotencyKey      String
+  requestHash         String
+  state               IdempotencyState @default(PENDING)
+  responseStatusCode  Int?
+  responseBody        String?
+  responseContentType String?
+  createdAt           DateTime         @default(now())
+  updatedAt           DateTime         @updatedAt
+  expiresAt           DateTime?
+  merchant            Merchant         @relation(fields: [merchantId], references: [id], onDelete: Cascade)
+
+  @@unique([merchantId, route, idempotencyKey])
+  @@index([merchantId, createdAt])
+  @@map("idempotency_records")
+}

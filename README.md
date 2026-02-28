@@ -3,7 +3,7 @@
 Level-1 payments gateway sandbox built with Next.js App Router and TypeScript.
 
 ## Status
-- Current milestone: Task 0 (repo bootstrap foundation)
+- Current milestone: Task 2 (auth middleware + API keys)
 - Source of truth for implementation/process rules: `AGENTS.md`
 
 ## Tech Stack
@@ -20,9 +20,11 @@ Level-1 payments gateway sandbox built with Next.js App Router and TypeScript.
 ## Quick Start
 1. Install dependencies:
 	- `pnpm install`
-2. Start local dev server:
+2. Copy environment template:
+	- `cp .env.example .env.local` (or PowerShell: `Copy-Item .env.example .env.local`)
+3. Start local dev server:
 	- `pnpm dev`
-3. Run tests:
+4. Run tests:
 	- `pnpm test`
 
 ## Available Scripts
@@ -32,11 +34,15 @@ Level-1 payments gateway sandbox built with Next.js App Router and TypeScript.
 - `pnpm lint`
 - `pnpm test`
 - `pnpm test:watch`
+- `pnpm prisma:generate`
+- `pnpm prisma:migrate:dev -- --name <migration_name>`
+- `pnpm prisma:migrate:deploy`
 - `pnpm format`
 - `pnpm format:check`
 
 ## API (current)
 - `GET /api/health`
+- `GET /api/v1/me` (Bearer API key required)
 
 ## Environment Variables (placeholders)
 Create `.env.local` and set:
@@ -46,6 +52,9 @@ Create `.env.local` and set:
 - `REDIS_REST_TOKEN=`
 - `APP_BASE_URL=`
 - `CRON_SECRET=`
+- `RATE_LIMIT_MAX_REQUESTS=60`
+- `RATE_LIMIT_WINDOW_SECONDS=60`
+- `IDEMPOTENCY_TTL_SECONDS=86400`
 
 ## API Artifacts
 - OpenAPI: `openapi.yaml`

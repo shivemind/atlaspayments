@@ -5,6 +5,12 @@ info:
   description: Level-1 payments gateway sandbox API.
 servers:
   - url: http://localhost:3000
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: API Key
 paths:
   /api/health:
     get:
@@ -38,3 +44,155 @@ paths:
                     status: ok
                     service: atlaspayments
                     timestamp: "2026-02-27T23:30:00.000Z"
+  /api/v1/me:
+    get:
+      summary: Current API key identity
+      operationId: getCurrentIdentity
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Merchant and API key metadata
+          headers:
+            x-ratelimit-limit:
+              schema:
+                type: string
+            x-ratelimit-remaining:
+              schema:
+                type: string
+            x-ratelimit-reset:
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - merchant
+                  - apiKey
+                properties:
+                  merchant:
+                    type: object
+                    required:
+                      - id
+                      - name
+                      - status
+                    properties:
+                      id:
+                        type: string
+                      name:
+                        type: string
+                      status:
+                        type: string
+                  apiKey:
+                    type: object
+                    required:
+                      - id
+                      - name
+                      - role
+                      - scopes
+                      - keyPrefix
+                      - createdAt
+                      - lastUsedAt
+                    properties:
+                      id:
+                        type: string
+                      name:
+                        type: string
+                      role:
+                        type: string
+                        enum: [MERCHANT, PLATFORM_ADMIN]
+                      scopes:
+                        type: array
+                        items:
+                          type: string
+                      keyPrefix:
+                        type: string
+                      createdAt:
+                        type: string
+                        format: date-time
+                      lastUsedAt:
+                        type: string
+                        format: date-time
+                        nullable: true
+              examples:
+                merchantKey:
+                  value:
+                    merchant:
+                      id: cmf1merchant123
+                      name: Task 2 Merchant
+                      status: ACTIVE
+                    apiKey:
+                      id: cmf1apikey123
+                      name: Primary key
+                      role: MERCHANT
+                      scopes: [me:read, payments:read]
+                      keyPrefix: sk_test_va
+                      createdAt: "2026-02-27T23:30:00.000Z"
+                      lastUsedAt: null
+        "401":
+          description: Missing or invalid API key
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - error
+                properties:
+                  error:
+                    type: object
+                    required:
+                      - code
+                      - message
+                    properties:
+                      code:
+                        type: string
+                        enum: [AUTH_REQUIRED, INVALID_API_KEY]
+                      message:
+                        type: string
+              examples:
+                authRequired:
+                  value:
+                    error:
+                      code: AUTH_REQUIRED
+                      message: Authorization bearer token is required.
+                invalidKey:
+                  value:
+                    error:
+                      code: INVALID_API_KEY
+                      message: Invalid API key.
+        "429":
+          description: Fixed-window rate limit exceeded
+          headers:
+            x-ratelimit-limit:
+              schema:
+                type: string
+            x-ratelimit-remaining:
+              schema:
+                type: string
+            x-ratelimit-reset:
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - error
+                properties:
+                  error:
+                    type: object
+                    required:
+                      - code
+                      - message
+                    properties:
+                      code:
+                        type: string
+                      message:
+                        type: string
+              examples:
+                limited:
+                  value:
+                    error:
+                      code: RATE_LIMITED
+                      message: Rate limit exceeded.
