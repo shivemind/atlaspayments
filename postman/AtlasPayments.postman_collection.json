@@ -238,6 +238,50 @@
           "body": "{\n  \"error\": {\n    \"code\": \"CUSTOMER_NOT_FOUND\",\n    \"message\": \"Customer not found.\"\n  }\n}"
         }
       ]
+    },
+    {
+      "name": "Payment Intents - POST /api/v1/payment_intents",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{apiKey}}"
+          },
+          {
+            "key": "Idempotency-Key",
+            "value": "{{idempotencyKey}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"amount\": 2500,\n  \"currency\": \"USD\",\n  \"customer_id\": \"{{customerId}}\",\n  \"payment_method_token\": \"pm_tok_visa\",\n  \"metadata\": {\n    \"order_id\": \"ord_123\"\n  }\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/payment_intents",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "payment_intents"
+          ]
+        }
+      },
+      "response": [
+        {
+          "name": "201 Created",
+          "status": "Created",
+          "code": 201,
+          "_postman_previewlanguage": "json",
+          "body": "{\n  \"payment_intent\": {\n    \"id\": \"cmf1pi123\",\n    \"merchant_id\": \"cmf1merchant123\",\n    \"customer_id\": \"cmf1customer123\",\n    \"amount\": 2500,\n    \"currency\": \"USD\",\n    \"status\": \"requires_confirmation\",\n    \"payment_method_token\": \"pm_tok_visa\",\n    \"metadata\": {\n      \"order_id\": \"ord_123\"\n    },\n    \"created_at\": \"2026-02-28T12:00:00.000Z\",\n    \"updated_at\": \"2026-02-28T12:00:00.000Z\"\n  }\n}"
+        }
+      ]
     }
   ],
   "variable": [
@@ -252,6 +296,10 @@
     {
       "key": "customerId",
       "value": "cmf1customer123"
+    },
+    {
+      "key": "idempotencyKey",
+      "value": "pi_create_key_1"
     }
   ]
 }

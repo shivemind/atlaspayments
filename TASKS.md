@@ -35,5 +35,17 @@
   - [x] Multi-tenant isolation on merchant-scoped customer access
   - [x] Tests: create + fetch + list + tenant isolation
 
+- [x] TASK 5 — Ledger service (Level 1 minimal but principled)
+  - [x] Ledger posting service writes balanced journal entries
+  - [x] Invariant checker enforces `sum(debits)=sum(credits)` per journal entry
+  - [x] `getMerchantBalances` helper derives available, pending, and fees from ledger
+  - [x] Tests: balanced posting and imbalance detection
+
+- [x] TASK 6 — Payment Intent core + state machine (create)
+  - [x] `POST /api/v1/payment_intents` creates PI in `requires_confirmation`
+  - [x] Supports amount, currency, customer_id, payment_method_token, metadata
+  - [x] Emits `payment_intent.created` webhook delivery records
+  - [x] Tests: create PI, idempotent create replay, webhook delivery record created
+
 ## Next Level-1 tasks
 - [ ] Populate remaining Level-1 queue from product prompt

@@ -23,6 +23,7 @@ enum ApiKeyRole {
 }
 
 enum PaymentIntentStatus {
+  REQUIRES_CONFIRMATION
   PENDING
   APPROVED
   DECLINED
@@ -130,7 +131,8 @@ model PaymentIntent {
   customerId     String?
   amount         Int
   currency       String
-  status         PaymentIntentStatus @default(PENDING)
+  status         PaymentIntentStatus @default(REQUIRES_CONFIRMATION)
+  paymentMethodToken String
   idempotencyKey String
   description    String?
   metadata       Json?

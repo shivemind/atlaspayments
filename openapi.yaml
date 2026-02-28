@@ -468,3 +468,109 @@ paths:
                     error:
                       code: CUSTOMER_NOT_FOUND
                       message: Customer not found.
+  /api/v1/payment_intents:
+    post:
+      summary: Create payment intent
+      operationId: createPaymentIntent
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: header
+          name: Idempotency-Key
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - amount
+                - currency
+                - payment_method_token
+              properties:
+                amount:
+                  type: integer
+                  minimum: 1
+                currency:
+                  type: string
+                  minLength: 3
+                  maxLength: 3
+                customer_id:
+                  type: string
+                payment_method_token:
+                  type: string
+                metadata:
+                  type: object
+                  additionalProperties: true
+            examples:
+              basic:
+                value:
+                  amount: 2500
+                  currency: USD
+                  customer_id: cmf1customer123
+                  payment_method_token: pm_tok_visa
+                  metadata:
+                    order_id: ord_123
+      responses:
+        "201":
+          description: Payment intent created in requires_confirmation status
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - payment_intent
+                properties:
+                  payment_intent:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                      merchant_id:
+                        type: string
+                      customer_id:
+                        type: string
+                        nullable: true
+                      amount:
+                        type: integer
+                      currency:
+                        type: string
+                      status:
+                        type: string
+                        example: requires_confirmation
+                      payment_method_token:
+                        type: string
+                      metadata:
+                        type: object
+                        additionalProperties: true
+                        nullable: true
+                      created_at:
+                        type: string
+                        format: date-time
+                      updated_at:
+                        type: string
+                        format: date-time
+              examples:
+                created:
+                  value:
+                    payment_intent:
+                      id: cmf1pi123
+                      merchant_id: cmf1merchant123
+                      customer_id: cmf1customer123
+                      amount: 2500
+                      currency: USD
+                      status: requires_confirmation
+                      payment_method_token: pm_tok_visa
+                      metadata:
+                        order_id: ord_123
+                      created_at: "2026-02-28T12:00:00.000Z"
+                      updated_at: "2026-02-28T12:00:00.000Z"
+        "400":
+          description: Invalid request or missing idempotency key
+        "401":
+          description: Missing or invalid API key
+        "404":
+          description: Customer not found
